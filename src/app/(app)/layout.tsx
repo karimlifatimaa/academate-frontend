@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   BookOpen, CalendarDays, Users, Clock,
-  LogOut, User, GraduationCap, Menu, X,
+  LogOut, User, GraduationCap, Menu, X, Key,
 } from "lucide-react";
 import { useState } from "react";
 import axios from "axios";
@@ -16,6 +16,7 @@ const NAV = {
   STUDENT: [
     { href: "/lessons", label: "Dərslər", icon: CalendarDays },
     { href: "/teachers", label: "Müəllimlər", icon: GraduationCap },
+    { href: "/family/invite-code", label: "Valideyn", icon: Key },
     { href: "/profile", label: "Profil", icon: User },
   ],
   TEACHER: [
@@ -28,6 +29,8 @@ const NAV = {
     { href: "/profile", label: "Profil", icon: User },
   ],
   ADMIN: [
+    { href: "/admin/users", label: "İstifadəçilər", icon: Users },
+    { href: "/admin/teachers", label: "Müəllimlər", icon: GraduationCap },
     { href: "/profile", label: "Profil", icon: User },
   ],
 };

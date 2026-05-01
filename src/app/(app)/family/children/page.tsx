@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Users, UserPlus, Loader2, Link2 } from "lucide-react";
+import Link from "next/link";
+import { Users, UserPlus, Loader2, Link2, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import { useChildren } from "@/hooks/useChildren";
@@ -175,16 +176,25 @@ export default function ChildrenPage() {
             Hesabınıza bağlı uşaqların siyahısı
           </p>
         </div>
-        <button
-          onClick={() => setShowModal(true)}
-          className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-          style={{
-            background: "linear-gradient(135deg, #4A6741 0%, #6B8F6E 100%)",
-          }}
-        >
-          <UserPlus className="size-4" />
-          Uşaq əlavə et
-        </button>
+        <div className="flex gap-2 flex-wrap">
+          <Link
+            href="/family/children/new"
+            className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold border border-[#4A6741] text-[#4A6741] hover:bg-[#F0F5EE] transition-colors"
+          >
+            <Plus className="size-4" />
+            Yeni uşaq
+          </Link>
+          <button
+            onClick={() => setShowModal(true)}
+            className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            style={{
+              background: "linear-gradient(135deg, #4A6741 0%, #6B8F6E 100%)",
+            }}
+          >
+            <UserPlus className="size-4" />
+            Kodla bağla
+          </button>
+        </div>
       </div>
 
       {/* How it works */}

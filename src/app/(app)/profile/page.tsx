@@ -141,13 +141,19 @@ function AvatarSection({
     }
     setUploading(true);
     try {
-      const form = new FormData();
-      form.append("file", file);
-      const res = await api.post<{ avatarUrl: string }>(
-        "/api/v1/users/me/avatar",
-        form,
-        { headers: { "Content-Type": "multipart/form-data" } }
+      const params = new URLSearchParams({
+        fileName: file.name,
+        contentType: file.type,
+      });
+      const res = await api.post<{ uploadUrl: string; avatarUrl: string }>(
+        `/api/v1/users/me/avatar?${params}`
       );
+      const uploadRes = await fetch(res.data.uploadUrl, {
+        method: "PUT",
+        body: file,
+        headers: { "Content-Type": file.type },
+      });
+      if (!uploadRes.ok) throw new Error("S3 upload failed");
       onUpload(res.data.avatarUrl);
       toast.success("Avatar yeniləndi");
     } catch {
@@ -707,11 +713,19 @@ export default function ProfilePage() {
   return (
     <div className="space-y-6 max-w-3xl">
       {/* Page header */}
-      <div>
-        <h1 className="text-2xl font-bold text-[#1A1A1A]">Profilim</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">
-          Şəxsi məlumatlarınızı idarə edin
-        </p>
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold text-[#1A1A1A]">Profilim</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Şəxsi məlumatlarınızı idarə edin
+          </p>
+        </div>
+        <a
+          href="/profile/security"
+          className="inline-flex items-center gap-1.5 rounded-xl border border-[#E2DDD5] px-3.5 py-2 text-sm font-semibold text-[#4A4A4A] hover:bg-[#F0F5EE] hover:text-[#4A6741] transition-colors"
+        >
+          Təhlükəsizlik
+        </a>
       </div>
 
       {/* Avatar */}

@@ -4,6 +4,7 @@ import type {
   TeacherSearchResponse,
   TeacherPublicProfile,
   AvailabilitySlot,
+  BookedTimeRange,
   ReviewResponse,
   PageResponse,
 } from "@/types/profile";
@@ -40,6 +41,25 @@ export function useTeacherAvailability(teacherId: string) {
         .get<AvailabilitySlot[]>(`/api/v1/teachers/${teacherId}/availability`)
         .then((r) => r.data),
     enabled: !!teacherId,
+  });
+}
+
+export function useTeacherBookedTimes(teacherId: string, fromIso?: string, toIso?: string) {
+  return useQuery({
+    queryKey: ["teacher-booked-times", teacherId, fromIso, toIso],
+    queryFn: () => {
+      const params = new URLSearchParams();
+      if (fromIso) params.set("from", fromIso);
+      if (toIso) params.set("to", toIso);
+      const qs = params.toString();
+      return api
+        .get<BookedTimeRange[]>(
+          `/api/v1/teachers/${teacherId}/booked-times${qs ? `?${qs}` : ""}`
+        )
+        .then((r) => r.data);
+    },
+    enabled: !!teacherId,
+    staleTime: 30_000,
   });
 }
 

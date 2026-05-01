@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import {
   ArrowLeft, Star, BadgeCheck, Clock,
   CalendarDays, Loader2, ChevronLeft, ChevronRight,
-  BookOpen, MessageSquare, Sparkles,
+  MessageSquare, Sparkles,
 } from "lucide-react";
 
 import {
@@ -56,35 +56,6 @@ function Stars({ rating, size = "sm", white }: { rating: number; size?: "sm" | "
   );
 }
 
-/* ── Book Modal ──────────────────────────────────── */
-function BookModal({ onClose }: { onClose: () => void }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="w-full max-w-sm rounded-3xl bg-white shadow-2xl p-8 space-y-5">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl mx-auto mb-2"
-          style={{ background: "linear-gradient(135deg,#4A6741,#6B8F6E)" }}>
-          <BookOpen className="size-7 text-white" />
-        </div>
-        <div className="text-center">
-          <h2 className="text-xl font-bold text-[#1A1A1A]" style={{ fontFamily: "var(--font-display)" }}>
-            Dərs rezerv et
-          </h2>
-          <p className="text-sm text-[#7A7570] leading-relaxed mt-2">
-            Rezervasiya funksiyası tezliklə əlavə ediləcək.
-          </p>
-        </div>
-        <button
-          onClick={onClose}
-          className="w-full h-12 rounded-2xl text-sm font-bold text-white hover:opacity-90 transition-opacity"
-          style={{ background: "linear-gradient(135deg,#4A6741,#6B8F6E)" }}
-        >
-          Bağla
-        </button>
-      </div>
-    </div>
-  );
-}
-
 /* ── Page ────────────────────────────────────────── */
 export default function TeacherProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -98,7 +69,6 @@ export default function TeacherProfilePage() {
   const { data: availability } = useTeacherAvailability(id);
   const [reviewPage, setReviewPage] = useState(0);
   const { data: reviews } = useTeacherReviews(id, reviewPage);
-  const [showBook, setShowBook] = useState(false);
 
   const sorted = [...(availability ?? [])].sort(
     (a, b) => (DAY_ORDER[a.dayOfWeek] ?? 9) - (DAY_ORDER[b.dayOfWeek] ?? 9)
@@ -362,7 +332,7 @@ export default function TeacherProfilePage() {
               <div className="px-7 py-6 space-y-3">
                 {myRole === "STUDENT" ? (
                   <button
-                    onClick={() => setShowBook(true)}
+                    onClick={() => router.push(`/teachers/${id}/book`)}
                     className="w-full py-4 rounded-2xl bg-white text-sm font-bold text-[#4A6741] hover:bg-white/90 active:scale-[0.98] transition-all shadow-lg"
                   >
                     Dərs Rezerv Et
@@ -392,7 +362,6 @@ export default function TeacherProfilePage() {
         </div>
       </div>
 
-      {showBook && <BookModal onClose={() => setShowBook(false)} />}
     </div>
   );
 }

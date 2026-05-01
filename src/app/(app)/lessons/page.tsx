@@ -24,6 +24,7 @@ import {
 } from "@/hooks/useLessons";
 import type { LessonResponse, LessonStatus } from "@/types/profile";
 import type { UserRole } from "@/types/auth";
+import { ReviewModal } from "@/components/lessons/ReviewModal";
 
 /* ── Subject labels ──────────────────────────────── */
 const SUBJECT_LABELS: Record<string, string> = {
@@ -109,12 +110,14 @@ function LessonCard({
   onConfirm,
   onComplete,
   onCancel,
+  onReview,
 }: {
   lesson: LessonResponse;
   role: UserRole;
   onConfirm?: (id: string) => void;
   onComplete?: (id: string) => void;
   onCancel?: (id: string) => void;
+  onReview?: (lesson: LessonResponse) => void;
 }) {
   const isTeacher = role === "TEACHER";
   const personName = isTeacher ? lesson.studentName : lesson.teacherName;
@@ -219,9 +222,7 @@ function LessonCard({
 
         {lesson.status === "COMPLETED" && !isTeacher && (
           <button
-            onClick={() =>
-              toast.info("Rəy yazma funksiyası tezliklə əlavə ediləcək")
-            }
+            onClick={() => onReview?.(lesson)}
             className="inline-flex items-center gap-1.5 rounded-xl border border-[#E2DDD5] px-4 py-2 text-sm font-medium text-[#4A4A4A] hover:bg-muted/50 transition-colors"
           >
             <Star className="size-3.5" />
@@ -270,6 +271,7 @@ export default function LessonsPage() {
 
   const [tab, setTab] = useState<LessonStatus | "ALL">("ALL");
   const status = tab === "ALL" ? undefined : tab;
+  const [reviewLesson, setReviewLesson] = useState<LessonResponse | null>(null);
 
   const { data, isLoading } = useLessons(role, status);
   const confirm = useConfirmLesson();
@@ -389,9 +391,18 @@ export default function LessonsPage() {
               onConfirm={handleConfirm}
               onComplete={handleComplete}
               onCancel={handleCancel}
+              onReview={setReviewLesson}
             />
           ))}
         </div>
+      )}
+
+      {reviewLesson && (
+        <ReviewModal
+          teacherId={reviewLesson.teacherId}
+          teacherName={reviewLesson.teacherName}
+          onClose={() => setReviewLesson(null)}
+        />
       )}
     </div>
   );

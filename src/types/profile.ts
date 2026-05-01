@@ -89,6 +89,11 @@ export interface AvailabilitySlot {
   endTime: string;
 }
 
+export interface BookedTimeRange {
+  startTime: string;
+  endTime: string;
+}
+
 export interface ReviewResponse {
   id: string;
   studentId: string;

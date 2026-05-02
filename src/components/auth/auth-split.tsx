@@ -170,26 +170,51 @@ export function OAuthButtons() {
 
 /* ── Password strength bar ───────────────────────────────── */
 export function PasswordStrength({ password }: { password: string }) {
-  const score = (() => {
-    let s = 0;
-    if (password.length >= 8) s++;
-    if (/[A-Z]/.test(password)) s++;
-    if (/[0-9]/.test(password)) s++;
-    if (/[^A-Za-z0-9]/.test(password)) s++;
-    return s;
-  })();
-
   if (!password) return null;
 
-  const levels = [
-    { label: "Çox zəif", color: "bg-red-400" },
-    { label: "Zəif", color: "bg-orange-400" },
-    { label: "Orta", color: "bg-yellow-400" },
-    { label: "Güclü", color: "bg-[#6B9E6B]" },
-    { label: "Çox güclü", color: "bg-[#4A6741]" },
-  ];
+  const checks = {
+    length: password.length >= 8,
+    upper: /[A-Z]/.test(password),
+    lower: /[a-z]/.test(password),
+    digit: /[0-9]/.test(password),
+    special: /[^A-Za-z0-9]/.test(password),
+  };
 
-  const level = levels[score] ?? levels[0];
+  const requiredMet =
+    checks.length && checks.upper && checks.lower && checks.digit;
+  const passedRequired = [checks.length, checks.upper, checks.lower, checks.digit]
+    .filter(Boolean).length;
+
+  // Cap the visual score at "Orta" (3/4 bars) until ALL required rules are met.
+  // Once all 4 required rules pass, show "Güclü" (4/4). With a special char too,
+  // show "Çox güclü" (4/4 plus distinct color).
+  let score: number;
+  let label: string;
+  let color: string;
+
+  if (!requiredMet) {
+    if (passedRequired <= 1) {
+      score = 1;
+      label = "Çox zəif";
+      color = "bg-red-400";
+    } else if (passedRequired === 2) {
+      score = 2;
+      label = "Zəif";
+      color = "bg-orange-400";
+    } else {
+      score = 3;
+      label = "Orta";
+      color = "bg-yellow-400";
+    }
+  } else if (!checks.special) {
+    score = 4;
+    label = "Güclü";
+    color = "bg-[#6B9E6B]";
+  } else {
+    score = 4;
+    label = "Çox güclü";
+    color = "bg-[#4A6741]";
+  }
 
   return (
     <div className="space-y-1.5 mt-2">
@@ -198,12 +223,12 @@ export function PasswordStrength({ password }: { password: string }) {
           <div
             key={i}
             className={`h-1 flex-1 rounded-full transition-colors duration-300 ${
-              i <= score ? level.color : "bg-muted"
+              i <= score ? color : "bg-muted"
             }`}
           />
         ))}
       </div>
-      <p className="text-xs text-muted-foreground">{level.label} şifrə</p>
+      <p className="text-xs text-muted-foreground">{label} şifrə</p>
     </div>
   );
 }

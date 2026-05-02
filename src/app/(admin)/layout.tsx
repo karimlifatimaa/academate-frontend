@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { Shield, Users, GraduationCap, LogOut, Loader2 } from "lucide-react";
+import { Shield, Users, GraduationCap, LogOut, Loader2, Home } from "lucide-react";
 import axios from "axios";
 
 import { useAuthStore } from "@/store/authStore";
 import { useProfile } from "@/hooks/useProfile";
 
 const NAV = [
+  { href: "/dashboard", label: "Ana səhifə", icon: Home },
   { href: "/admin/users", label: "İstifadəçilər", icon: Users },
   { href: "/admin/teachers", label: "Müəllimlər", icon: GraduationCap },
 ];

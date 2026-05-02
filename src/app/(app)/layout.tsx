@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   BookOpen, CalendarDays, Users, Clock,
-  LogOut, User, GraduationCap, Menu, X, Key,
+  LogOut, User, GraduationCap, Menu, X, Key, Home,
 } from "lucide-react";
 import { useState } from "react";
 import axios from "axios";
@@ -14,21 +14,25 @@ import { useProfile } from "@/hooks/useProfile";
 
 const NAV = {
   STUDENT: [
+    { href: "/dashboard", label: "Ana səhifə", icon: Home },
     { href: "/lessons", label: "Dərslər", icon: CalendarDays },
     { href: "/teachers", label: "Müəllimlər", icon: GraduationCap },
     { href: "/family/invite-code", label: "Valideyn", icon: Key },
     { href: "/profile", label: "Profil", icon: User },
   ],
   TEACHER: [
+    { href: "/dashboard", label: "Ana səhifə", icon: Home },
     { href: "/lessons", label: "Dərslər", icon: CalendarDays },
     { href: "/availability", label: "Mövcudluq", icon: Clock },
     { href: "/profile", label: "Profil", icon: User },
   ],
   PARENT: [
+    { href: "/dashboard", label: "Ana səhifə", icon: Home },
     { href: "/family/children", label: "Uşaqlarım", icon: Users },
     { href: "/profile", label: "Profil", icon: User },
   ],
   ADMIN: [
+    { href: "/dashboard", label: "Ana səhifə", icon: Home },
     { href: "/admin/users", label: "İstifadəçilər", icon: Users },
     { href: "/admin/teachers", label: "Müəllimlər", icon: GraduationCap },
     { href: "/profile", label: "Profil", icon: User },

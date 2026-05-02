@@ -14,6 +14,23 @@ export interface AdminTeacherSummary {
   rating?: number;
 }
 
+export interface AdminStats {
+  totalUsers: number;
+  totalStudents: number;
+  totalTeachers: number;
+  totalParents: number;
+  verifiedTeachers: number;
+  pendingTeachers: number;
+}
+
+export function useAdminStats() {
+  return useQuery({
+    queryKey: ["admin-stats"],
+    queryFn: () => api.get<AdminStats>("/api/v1/admin/stats").then((r) => r.data),
+    staleTime: 60_000,
+  });
+}
+
 export function useAdminUsers(role: string | undefined, page = 0, size = 20) {
   return useQuery({
     queryKey: ["admin-users", role, page, size],

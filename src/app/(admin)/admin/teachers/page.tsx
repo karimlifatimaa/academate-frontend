@@ -9,6 +9,7 @@ import {
   BadgeCheck,
   Ban,
   Star,
+  AlertCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -115,7 +116,7 @@ export default function AdminTeachersPage() {
                 </div>
 
                 {t.subjects && t.subjects.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mb-4">
+                  <div className="flex flex-wrap gap-1.5 mb-3">
                     {t.subjects.map((s) => (
                       <span
                         key={s}
@@ -127,16 +128,54 @@ export default function AdminTeachersPage() {
                   </div>
                 )}
 
-                <div className="flex gap-2">
-                  {!t.isVerified && (
-                    <button
-                      onClick={() => handleVerify(t.userId, t.fullName)}
-                      className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 h-9 rounded-xl text-xs font-bold text-white shadow-sm hover:opacity-95 transition-opacity"
-                      style={{ background: "linear-gradient(135deg,#4A6741,#6B8F6E)" }}
+                {!t.isVerified && (
+                  <div className="flex flex-wrap gap-1.5 mb-3 text-[11px]">
+                    <span
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border ${
+                        t.profileComplete
+                          ? "bg-[#F0F5EE] text-[#4A6741] border-[#D4E5D0]"
+                          : "bg-amber-50 text-amber-700 border-amber-200"
+                      }`}
                     >
-                      <BadgeCheck className="size-3.5" /> Təsdiqlə
-                    </button>
-                  )}
+                      {t.profileComplete ? "✓" : "○"} Profil
+                    </span>
+                    <span
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border ${
+                        t.availabilityComplete
+                          ? "bg-[#F0F5EE] text-[#4A6741] border-[#D4E5D0]"
+                          : "bg-amber-50 text-amber-700 border-amber-200"
+                      }`}
+                    >
+                      {t.availabilityComplete ? "✓" : "○"} Cədvəl
+                    </span>
+                  </div>
+                )}
+
+                <div className="flex gap-2">
+                  {!t.isVerified && (() => {
+                    const ready = (t.profileComplete ?? false) && (t.availabilityComplete ?? false);
+                    const reason = !t.profileComplete
+                      ? "Profil yarımçıq"
+                      : !t.availabilityComplete
+                      ? "Cədvəl qurulmayıb"
+                      : "";
+                    return (
+                      <button
+                        onClick={() => handleVerify(t.userId, t.fullName)}
+                        disabled={!ready}
+                        title={!ready ? reason : ""}
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 h-9 rounded-xl text-xs font-bold text-white shadow-sm hover:opacity-95 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+                        style={{ background: "linear-gradient(135deg,#4A6741,#6B8F6E)" }}
+                      >
+                        {ready ? (
+                          <BadgeCheck className="size-3.5" />
+                        ) : (
+                          <AlertCircle className="size-3.5" />
+                        )}
+                        {ready ? "Təsdiqlə" : reason}
+                      </button>
+                    );
+                  })()}
                   <button
                     onClick={() => handleDeactivate(t.userId, t.fullName)}
                     className="flex-1 inline-flex items-center justify-center gap-1 px-3 h-9 rounded-xl border border-red-200 text-xs font-semibold text-red-500 hover:bg-red-50 transition-colors"

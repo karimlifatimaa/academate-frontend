@@ -10,6 +10,8 @@ export interface AdminTeacherSummary {
   phone: string | null;
   avatarUrl: string | null;
   isVerified: boolean;
+  profileComplete?: boolean;
+  availabilityComplete?: boolean;
   subjects?: string[];
   rating?: number;
 }

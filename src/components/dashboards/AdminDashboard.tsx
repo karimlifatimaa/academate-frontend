@@ -103,6 +103,12 @@ export default function AdminDashboard() {
               {pendingList.map((t) => {
                 const initials = t.fullName.split(" ").map((p) => p[0]).slice(0, 2).join("");
                 const isPending = verify.isPending && verify.variables === t.userId;
+                const ready = (t.profileComplete ?? false) && (t.availabilityComplete ?? false);
+                const reason = !t.profileComplete
+                  ? "Profil yarımçıqdır"
+                  : !t.availabilityComplete
+                  ? "Cədvəl qurulmayıb"
+                  : "";
                 return (
                   <div key={t.userId} className="py-3 flex items-center gap-4">
                     {t.avatarUrl ? (
@@ -125,16 +131,23 @@ export default function AdminDashboard() {
                         {t.fullName}
                       </p>
                       <p className="text-[12px] text-[#7A7570] truncate">{t.email}</p>
+                      {!ready && (
+                        <span className="inline-block mt-1 text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                          {reason}
+                        </span>
+                      )}
                     </div>
                     <button
                       onClick={() => {
                         verify.mutate(t.userId, {
                           onSuccess: () => toast.success("Müəllim təsdiqləndi"),
-                          onError: () => toast.error("Təsdiq alınmadı"),
+                          onError: (err: any) =>
+                            toast.error(err?.response?.data?.detail ?? "Təsdiq alınmadı"),
                         });
                       }}
-                      disabled={isPending}
-                      className="text-xs font-bold text-white px-3 py-2 rounded-xl disabled:opacity-50 flex items-center gap-1.5"
+                      disabled={isPending || !ready}
+                      title={!ready ? `Müəllim ${reason.toLowerCase()}` : ""}
+                      className="text-xs font-bold text-white px-3 py-2 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
                       style={{ background: "linear-gradient(135deg,#4A6741,#6B8F6E)" }}
                     >
                       {isPending ? (

@@ -146,7 +146,11 @@ export function generateSlotsForDate(
       }
 
       slots.push({
-        iso: slotStart.toISOString(),
+        // Local-naive ISO string (no timezone). Backend stores LocalDateTime,
+        // so we must send the wall-clock time the user picked, not its UTC
+        // equivalent — otherwise a 09:00 Baku slot becomes 05:00 on the
+        // backend and falls outside the teacher's availability window.
+        iso: localIso(slotStart),
         hhmm: minutesToHHMM(m),
         disabled,
         reason,
@@ -155,4 +159,11 @@ export function generateSlotsForDate(
   }
 
   return slots;
+}
+
+function localIso(d: Date): string {
+  return (
+    `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` +
+    `T${pad(d.getHours())}:${pad(d.getMinutes())}:00`
+  );
 }

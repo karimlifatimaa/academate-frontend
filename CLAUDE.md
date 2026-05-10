@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Companion repository
+
+Backend (Spring Boot): `/Users/fatimakarimli/academate-backend`
+
 ## Commands
 
 ```bash

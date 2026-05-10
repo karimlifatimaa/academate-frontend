@@ -9,30 +9,12 @@ import { useChildren } from "@/hooks/useChildren";
 import { useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api/axios";
 import type { ChildResponse } from "@/types/profile";
+import { UserAvatar } from "@/components/ui/user-avatar";
 
 function ChildCard({ child }: { child: ChildResponse }) {
-  const parts = child.fullName.trim().split(" ");
-  const initials =
-    parts.length >= 2
-      ? parts[0][0] + parts[parts.length - 1][0]
-      : parts[0].slice(0, 2);
-
   return (
     <div className="rounded-2xl bg-white ring-1 ring-black/5 p-5 flex items-center gap-4 hover:shadow-md transition-shadow">
-      {child.avatarUrl ? (
-        <img
-          src={child.avatarUrl}
-          alt={child.fullName}
-          className="h-14 w-14 rounded-full object-cover shrink-0"
-        />
-      ) : (
-        <span
-          className="flex h-14 w-14 items-center justify-center rounded-full text-lg font-bold text-white uppercase shrink-0"
-          style={{ background: "#4A6741" }}
-        >
-          {initials}
-        </span>
-      )}
+      <UserAvatar name={child.fullName} url={child.avatarUrl} size="lg" className="h-14 w-14 text-lg" />
 
       <div className="flex-1 min-w-0">
         <p className="font-semibold text-[#1A1A1A]">{child.fullName}</p>

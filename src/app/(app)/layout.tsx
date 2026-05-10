@@ -11,6 +11,7 @@ import axios from "axios";
 
 import { useAuthStore } from "@/store/authStore";
 import { useProfile } from "@/hooks/useProfile";
+import { UserAvatar } from "@/components/ui/user-avatar";
 
 const NAV = {
   STUDENT: [
@@ -38,20 +39,6 @@ const NAV = {
     { href: "/profile", label: "Profil", icon: User },
   ],
 };
-
-function Avatar({ name, url }: { name?: string | null; url?: string | null }) {
-  if (url) return <img src={url} alt={name ?? ""} className="h-8 w-8 rounded-full object-cover ring-2 ring-white shadow-sm" />;
-  const safe = name?.trim() || "?";
-  const parts = safe.split(" ");
-  const initials = parts.length >= 2
-    ? (parts[0][0] ?? "") + (parts[parts.length - 1][0] ?? "")
-    : safe.slice(0, 2);
-  return (
-    <span className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white uppercase ring-2 ring-white shadow-sm" style={{ background: "linear-gradient(135deg,#4A6741,#6B8F6E)" }}>
-      {initials}
-    </span>
-  );
-}
 
 async function doLogout(clearAuth: () => void, push: (p: string) => void) {
   try {
@@ -118,7 +105,7 @@ function TopNav({ onMobileOpen }: { onMobileOpen: () => void }) {
           {/* Right side */}
           <div className="flex items-center gap-3 ml-auto shrink-0">
             <div className="hidden sm:flex items-center gap-2.5">
-              <Avatar name={profile?.fullName ?? user?.fullName} url={profile?.avatarUrl} />
+              <UserAvatar name={profile?.fullName ?? user?.fullName} url={profile?.avatarUrl} size="sm" />
               <div className="flex flex-col leading-none">
                 <span className="text-[13px] font-semibold text-[#1A1A1A] max-w-[130px] truncate">
                   {profile?.fullName ?? user?.fullName}
@@ -170,7 +157,7 @@ function MobileDrawer({ onClose }: { onClose: () => void }) {
 
         <div className="px-4 py-3 border-b border-[#EDE9E3]">
           <div className="flex items-center gap-3">
-            <Avatar name={profile?.fullName ?? user?.fullName} url={profile?.avatarUrl} />
+            <UserAvatar name={profile?.fullName ?? user?.fullName} url={profile?.avatarUrl} size="sm" />
             <div>
               <p className="text-sm font-semibold text-[#1A1A1A] truncate">{profile?.fullName ?? user?.fullName}</p>
               <p className="text-xs text-[#7A7570] truncate">{profile?.email ?? user?.email}</p>

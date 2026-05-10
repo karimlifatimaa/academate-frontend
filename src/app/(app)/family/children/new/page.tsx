@@ -115,7 +115,7 @@ export default function RegisterChildPage() {
                 onChange={(e) => setGrade(Number(e.target.value))}
                 className="w-full h-11 px-3 rounded-xl border border-[#E8E4DE] text-sm bg-white text-[#1A1A1A] focus:outline-none focus:border-[#4A6741]"
               >
-                {Array.from({ length: 11 }, (_, i) => i + 1).map((g) => (
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => (
                   <option key={g} value={g}>
                     {g}-ci sinif
                   </option>

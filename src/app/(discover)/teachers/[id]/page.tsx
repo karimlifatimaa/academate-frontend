@@ -15,32 +15,8 @@ import {
 } from "@/hooks/useTeachers";
 import { useAuthStore } from "@/store/authStore";
 import { useProfile } from "@/hooks/useProfile";
-
-/* ── Constants ───────────────────────────────────── */
-const SUBJECT_LABEL: Record<string, string> = {
-  RIYAZIYYAT: "Riyaziyyat", FIZIKA: "Fizika", KIMYA: "Kimya",
-  BIOLOGIYA: "Biologiya", INFORMATIKA: "İnformatika",
-  AZERBAYCAN_DILI: "Azərbaycan dili", EDEBIYYAT: "Ədəbiyyat",
-  INGILIS_DILI: "İngilis dili", TARIX: "Tarix", COGRAFIYA: "Coğrafiya",
-};
-
-const DAY_AZ: Record<string, string> = {
-  MONDAY: "Bazar ertəsi", TUESDAY: "Çərşənbə ax.", WEDNESDAY: "Çərşənbə",
-  THURSDAY: "Cümə ax.", FRIDAY: "Cümə", SATURDAY: "Şənbə", SUNDAY: "Bazar",
-};
-
-const DAY_ORDER: Record<string, number> = {
-  MONDAY: 0, TUESDAY: 1, WEDNESDAY: 2, THURSDAY: 3, FRIDAY: 4, SATURDAY: 5, SUNDAY: 6,
-};
-
-/* ── Helpers ─────────────────────────────────────── */
-function getInitials(name?: string | null) {
-  const safe = name?.trim() || "?";
-  const parts = safe.split(" ");
-  return parts.length >= 2
-    ? (parts[0][0] ?? "") + (parts[parts.length - 1][0] ?? "")
-    : safe.slice(0, 2);
-}
+import { SUBJECT_LABEL, DAY_AZ, DAY_ORDER } from "@/lib/constants";
+import { getInitials } from "@/lib/utils";
 
 function Stars({ rating, size = "sm", white }: { rating: number; size?: "sm" | "md"; white?: boolean }) {
   const r = rating ?? 0;

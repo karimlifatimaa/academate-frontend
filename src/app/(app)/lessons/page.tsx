@@ -5,7 +5,6 @@ import { format, parseISO } from "date-fns";
 import { az } from "date-fns/locale";
 import {
   CalendarDays,
-  Clock,
   Video,
   CheckCircle,
   XCircle,
@@ -25,22 +24,12 @@ import {
 import type { LessonResponse, LessonStatus } from "@/types/profile";
 import type { UserRole } from "@/types/auth";
 import { ReviewModal } from "@/components/lessons/ReviewModal";
+import { UserAvatar } from "@/components/ui/user-avatar";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from "@/components/ui/dialog";
 
-/* ── Subject labels ──────────────────────────────── */
-const SUBJECT_LABELS: Record<string, string> = {
-  AZERBAYCAN_DILI: "Azərbaycan dili",
-  EDEBIYYAT: "Ədəbiyyat",
-  RIYAZIYYAT: "Riyaziyyat",
-  FIZIKA: "Fizika",
-  KIMYA: "Kimya",
-  BIOLOGIYA: "Biologiya",
-  TARIX: "Tarix",
-  COGRAFIYA: "Coğrafiya",
-  INGILIS_DILI: "İngilis dili",
-  INFORMATIKA: "İnformatika",
-  MATH: "Riyaziyyat",
-  PHYSICS: "Fizika",
-};
+import { SUBJECT_LABEL as SUBJECT_LABELS } from "@/lib/constants";
 
 /* ── Status badge ────────────────────────────────── */
 const STATUS_CONFIG: Record<
@@ -54,6 +43,10 @@ const STATUS_CONFIG: Record<
   CONFIRMED: {
     label: "Təsdiqləndi",
     className: "bg-emerald-100 text-emerald-700",
+  },
+  IN_PROGRESS: {
+    label: "Davam edir",
+    className: "bg-blue-100 text-blue-700",
   },
   CANCELLED: {
     label: "Ləğv edildi",
@@ -72,33 +65,6 @@ function StatusBadge({ status }: { status: LessonStatus }) {
       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${cfg.className}`}
     >
       {cfg.label}
-    </span>
-  );
-}
-
-/* ── Initials avatar ─────────────────────────────── */
-function Avatar({ name, url }: { name?: string | null; url?: string | null }) {
-  if (url) {
-    return (
-      <img
-        src={url}
-        alt={name ?? ""}
-        className="h-10 w-10 rounded-full object-cover shrink-0"
-      />
-    );
-  }
-  const safeName = name?.trim() || "?";
-  const parts = safeName.split(" ");
-  const initials =
-    parts.length >= 2
-      ? (parts[0][0] ?? "") + (parts[parts.length - 1][0] ?? "")
-      : safeName.slice(0, 2);
-  return (
-    <span
-      className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold text-white uppercase shrink-0"
-      style={{ background: "#4A6741" }}
-    >
-      {initials}
     </span>
   );
 }
@@ -133,7 +99,7 @@ function LessonCard({
       {/* Top row */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <Avatar name={personName} url={personAvatar} />
+          <UserAvatar name={personName} url={personAvatar} />
           <div>
             <p className="text-sm font-semibold text-[#1A1A1A]">{personName}</p>
             <p className="text-xs text-muted-foreground">{personLabel}</p>
@@ -182,18 +148,20 @@ function LessonCard({
 
       {/* Actions */}
       <div className="flex gap-2 flex-wrap">
-        {lesson.status === "CONFIRMED" && lesson.meetingLink && (
+        {(lesson.status === "CONFIRMED" || lesson.status === "IN_PROGRESS") && lesson.meetingLink && (
           <a
             href={lesson.meetingLink}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
             style={{
-              background: "linear-gradient(135deg, #4A6741 0%, #6B8F6E 100%)",
+              background: lesson.status === "IN_PROGRESS"
+                ? "linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%)"
+                : "linear-gradient(135deg, #4A6741 0%, #6B8F6E 100%)",
             }}
           >
             <Video className="size-3.5" />
-            Dərsə qoşul
+            {lesson.status === "IN_PROGRESS" ? "Dərs davam edir" : "Dərsə qoşul"}
           </a>
         )}
 
@@ -259,6 +227,7 @@ const TABS: { value: LessonStatus | "ALL"; label: string }[] = [
   { value: "ALL", label: "Hamısı" },
   { value: "PENDING", label: "Gözlənilir" },
   { value: "CONFIRMED", label: "Təsdiqlənib" },
+  { value: "IN_PROGRESS", label: "Davam edir" },
   { value: "COMPLETED", label: "Tamamlanıb" },
   { value: "CANCELLED", label: "Ləğv edilib" },
 ];
@@ -272,6 +241,8 @@ export default function LessonsPage() {
   const [tab, setTab] = useState<LessonStatus | "ALL">("ALL");
   const status = tab === "ALL" ? undefined : tab;
   const [reviewLesson, setReviewLesson] = useState<LessonResponse | null>(null);
+  const [cancelTarget, setCancelTarget] = useState<string | null>(null);
+  const [cancelReason, setCancelReason] = useState("");
 
   const { data, isLoading } = useLessons(role, status);
   const confirm = useConfirmLesson();
@@ -296,14 +267,21 @@ export default function LessonsPage() {
     }
   };
 
-  const handleCancel = async (id: string) => {
-    const reason = window.prompt("Ləğvetmə səbəbini yazın:");
-    if (!reason) return;
+  const handleCancel = (id: string) => {
+    setCancelReason("");
+    setCancelTarget(id);
+  };
+
+  const submitCancel = async () => {
+    if (!cancelTarget) return;
     try {
-      await cancel.mutateAsync({ lessonId: id, reason });
+      await cancel.mutateAsync({ lessonId: cancelTarget, reason: cancelReason });
       toast.success("Dərs ləğv edildi");
     } catch {
       toast.error("Xəta baş verdi");
+    } finally {
+      setCancelTarget(null);
+      setCancelReason("");
     }
   };
 
@@ -326,29 +304,6 @@ export default function LessonsPage() {
           <span className="text-sm text-muted-foreground">
             {data.totalElements} dərs
           </span>
-        )}
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {(["PENDING", "CONFIRMED", "COMPLETED", "CANCELLED"] as LessonStatus[]).map(
-          (s) => (
-            <div
-              key={s}
-              className="rounded-2xl bg-white ring-1 ring-black/5 px-4 py-3"
-            >
-              <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-1">
-                {STATUS_CONFIG[s].label}
-              </p>
-              <p className="text-2xl font-bold text-[#1A1A1A]">
-                {isLoading ? (
-                  <span className="text-muted-foreground/40">—</span>
-                ) : (
-                  (data?.content ?? []).filter((l) => l.status === s).length
-                )}
-              </p>
-            </div>
-          )
         )}
       </div>
 
@@ -404,6 +359,42 @@ export default function LessonsPage() {
           onClose={() => setReviewLesson(null)}
         />
       )}
+
+      <Dialog open={!!cancelTarget} onOpenChange={(open) => !open && setCancelTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Dərsi ləğv et</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 py-1">
+            <p className="text-sm text-muted-foreground">
+              Ləğvetmə səbəbini qeyd edin (ixtiyari):
+            </p>
+            <textarea
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              rows={3}
+              placeholder="Səbəb..."
+              className="w-full rounded-xl border border-[#E2DDD5] bg-white px-3 py-2.5 text-sm resize-none focus:outline-none focus:border-[#4A6741] focus:ring-2 focus:ring-[#4A6741]/20"
+            />
+          </div>
+          <DialogFooter>
+            <button
+              onClick={() => setCancelTarget(null)}
+              className="rounded-xl border border-[#E2DDD5] px-4 py-2 text-sm font-medium text-[#4A4A4A] hover:bg-[#F8F5F0] transition-colors"
+            >
+              Ləğv et
+            </button>
+            <button
+              onClick={submitCancel}
+              disabled={cancel.isPending}
+              className="rounded-xl px-4 py-2 text-sm font-semibold text-white disabled:opacity-70 transition-opacity hover:opacity-90"
+              style={{ background: "linear-gradient(135deg,#dc2626,#ef4444)" }}
+            >
+              {cancel.isPending ? "..." : "Dərsi ləğv et"}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

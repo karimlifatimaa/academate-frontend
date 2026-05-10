@@ -25,21 +25,7 @@ import { useAuthStore } from "@/store/authStore";
 import { Input } from "@/components/ui/input";
 import { PasswordStrength } from "@/components/auth/auth-split";
 
-/* ── Constants ─────────────────────────────────────────── */
-const SUBJECT_LABELS: Record<string, string> = {
-  AZERBAYCAN_DILI: "Azərbaycan dili",
-  EDEBIYYAT: "Ədəbiyyat",
-  RIYAZIYYAT: "Riyaziyyat",
-  FIZIKA: "Fizika",
-  KIMYA: "Kimya",
-  BIOLOGIYA: "Biologiya",
-  TARIX: "Tarix",
-  COGRAFIYA: "Coğrafiya",
-  INGILIS_DILI: "İngilis dili",
-  INFORMATIKA: "İnformatika",
-  MATH: "Riyaziyyat",
-  PHYSICS: "Fizika",
-};
+import { SUBJECT_LABEL as SUBJECT_LABELS } from "@/lib/constants";
 
 const inputCls =
   "h-11 rounded-xl bg-white border-[#E2DDD5] focus-visible:border-[#4A6741] focus-visible:ring-[#4A6741]/20";
@@ -141,19 +127,12 @@ function AvatarSection({
     }
     setUploading(true);
     try {
-      const params = new URLSearchParams({
-        fileName: file.name,
-        contentType: file.type,
-      });
-      const res = await api.post<{ uploadUrl: string; avatarUrl: string }>(
-        `/api/v1/users/me/avatar?${params}`
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await api.post<{ avatarUrl: string }>(
+        "/api/v1/users/me/avatar",
+        formData
       );
-      const uploadRes = await fetch(res.data.uploadUrl, {
-        method: "PUT",
-        body: file,
-        headers: { "Content-Type": file.type },
-      });
-      if (!uploadRes.ok) throw new Error("S3 upload failed");
       onUpload(res.data.avatarUrl);
       toast.success("Avatar yeniləndi");
     } catch {
@@ -636,12 +615,9 @@ function DangerZone() {
   const router = useRouter();
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const [loading, setLoading] = useState(false);
+  const [confirming, setConfirming] = useState(false);
 
   const handleDelete = async () => {
-    const confirmed = window.confirm(
-      "Hesabınız deaktiv ediləcək. Davam etmək istəyirsiniz?"
-    );
-    if (!confirmed) return;
     setLoading(true);
     try {
       await api.delete("/api/v1/users/me");
@@ -652,6 +628,7 @@ function DangerZone() {
       toast.error("Xəta baş verdi");
     } finally {
       setLoading(false);
+      setConfirming(false);
     }
   };
 
@@ -670,18 +647,34 @@ function DangerZone() {
             Hesabınız deaktiv edilər. Məlumatlarınız saxlanılır.
           </p>
         </div>
-        <button
-          onClick={handleDelete}
-          disabled={loading}
-          className="inline-flex items-center gap-2 rounded-xl border border-red-200 px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50 shrink-0"
-        >
-          {loading ? (
-            <Loader2 className="size-4 animate-spin" />
+        <div className="flex items-center gap-2 shrink-0">
+          {confirming ? (
+            <>
+              <button
+                onClick={() => setConfirming(false)}
+                className="rounded-xl border border-[#E2DDD5] px-3 py-2 text-sm font-medium text-[#4A4A4A] hover:bg-[#F8F5F0] transition-colors"
+              >
+                Ləğv et
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={loading}
+                className="inline-flex items-center gap-2 rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600 transition-colors disabled:opacity-50"
+              >
+                {loading ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
+                Əminəm, sil
+              </button>
+            </>
           ) : (
-            <Trash2 className="size-4" />
+            <button
+              onClick={() => setConfirming(true)}
+              className="inline-flex items-center gap-2 rounded-xl border border-red-200 px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
+            >
+              <Trash2 className="size-4" />
+              Hesabı sil
+            </button>
           )}
-          Hesabı sil
-        </button>
+        </div>
       </div>
     </div>
   );

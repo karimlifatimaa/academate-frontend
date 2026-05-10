@@ -9,6 +9,7 @@ import { az } from "date-fns/locale";
 
 import { useProfile } from "@/hooks/useProfile";
 import { useGenerateInviteCode, useMyParents } from "@/hooks/useFamily";
+import { UserAvatar } from "@/components/ui/user-avatar";
 
 export default function InviteCodePage() {
   const router = useRouter();
@@ -191,20 +192,7 @@ export default function InviteCodePage() {
           <div className="divide-y divide-[#F5F2EE]">
             {parents.map((p) => (
               <div key={p.id} className="flex items-center gap-3 py-3">
-                {p.avatarUrl ? (
-                  <img
-                    src={p.avatarUrl}
-                    alt={p.fullName}
-                    className="h-10 w-10 rounded-full object-cover"
-                  />
-                ) : (
-                  <span
-                    className="flex h-10 w-10 items-center justify-center rounded-full text-xs font-bold text-white uppercase"
-                    style={{ background: "linear-gradient(135deg,#4A6741,#6B8F6E)" }}
-                  >
-                    {p.fullName.split(" ").map((s) => s[0]).slice(0, 2).join("")}
-                  </span>
-                )}
+                <UserAvatar name={p.fullName} url={p.avatarUrl} />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-[#1A1A1A] truncate">
                     {p.fullName}

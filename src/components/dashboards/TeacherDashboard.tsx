@@ -266,7 +266,7 @@ export default function TeacherDashboard() {
                 {profile.rating.toFixed(1)}
               </p>
               <p className="text-[11px] text-[#7A7570] uppercase tracking-wider mt-1">
-                Şagird reytinqi
+                Reytinqim
               </p>
             </div>
           )}

@@ -9,30 +9,13 @@ import {
   Baby, UserCheck, Key, ChevronRight,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import api from "@/lib/api/axios";
 
 import { useAuthStore } from "@/store/authStore";
 import type { MyProfileResponse, TeacherSearchResponse } from "@/types/profile";
 import type { UserRole } from "@/types/auth";
-
-/* ── Constants ───────────────────────────────────── */
-const SUBJECTS = [
-  { value: "RIYAZIYYAT", label: "Riyaziyyat", emoji: "📐" },
-  { value: "FIZIKA", label: "Fizika", emoji: "⚡" },
-  { value: "KIMYA", label: "Kimya", emoji: "🧪" },
-  { value: "BIOLOGIYA", label: "Biologiya", emoji: "🌿" },
-  { value: "INFORMATIKA", label: "İnformatika", emoji: "💻" },
-  { value: "AZERBAYCAN_DILI", label: "Azərbaycan dili", emoji: "📖" },
-  { value: "EDEBIYYAT", label: "Ədəbiyyat", emoji: "✍️" },
-  { value: "INGILIS_DILI", label: "İngilis dili", emoji: "🌍" },
-  { value: "TARIX", label: "Tarix", emoji: "🏛️" },
-  { value: "COGRAFIYA", label: "Coğrafiya", emoji: "🗺️" },
-];
-
-const SUBJECT_LABEL: Record<string, string> = Object.fromEntries(
-  SUBJECTS.map(({ value, label }) => [value, label])
-);
+import { SUBJECTS, SUBJECT_LABEL, ROLE_LABEL } from "@/lib/constants";
+import { getInitials } from "@/lib/utils";
 
 const NAV_BY_ROLE: Record<string, { href: string; label: string }[]> = {
   STUDENT: [
@@ -51,26 +34,11 @@ const NAV_BY_ROLE: Record<string, { href: string; label: string }[]> = {
   ],
 };
 
-const ROLE_LABEL: Record<string, string> = {
-  STUDENT: "Şagird", TEACHER: "Müəllim", PARENT: "Valideyn", ADMIN: "Admin",
-};
-
 /* ── Helpers ─────────────────────────────────────── */
-function getInitials(name?: string | null) {
-  const safe = name?.trim() || "?";
-  const parts = safe.split(" ");
-  return parts.length >= 2
-    ? (parts[0][0] ?? "") + (parts[parts.length - 1][0] ?? "")
-    : safe.slice(0, 2);
-}
-
 async function doLogout(clearAuth: () => void, push: (p: string) => void) {
   try {
     const refreshToken = localStorage.getItem("refresh-token");
-    await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/logout`,
-      { refreshToken }
-    );
+    await api.post("/api/v1/auth/logout", { refreshToken });
   } catch { /* ignore */ }
   finally { clearAuth(); push("/login"); }
 }

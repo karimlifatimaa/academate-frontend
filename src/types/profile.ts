@@ -25,7 +25,7 @@ export interface MyProfileResponse {
   occupation?: string;
 }
 
-export type LessonStatus = "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED";
+export type LessonStatus = "PENDING" | "CONFIRMED" | "IN_PROGRESS" | "CANCELLED" | "COMPLETED";
 
 export interface LessonResponse {
   id: string;
